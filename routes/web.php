@@ -2,29 +2,30 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\EnquiryController;
-use App\Http\Controllers\EnquiryTypeController;
-use App\Http\Controllers\EnquirySourceController;
-use App\Http\Controllers\CustomerTypeController;
-use App\Http\Controllers\PurchaseModeController;
-use App\Http\Controllers\EnquiryStatusController;
-use App\Http\Controllers\FollowUpMethodController;
-use App\Http\Controllers\ZoneController;
-use App\Http\Controllers\ShowRoomController;
-use App\Http\Controllers\EnqueryController;
-use App\Http\Controllers\FollowUpController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\NotificationsController;
-use App\Http\Controllers\CustomerProfessionController;
-use App\Http\Controllers\DueEnquiryController;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\UpazillaController;
-use App\Http\Controllers\ProductTypeController;
-use App\Http\Controllers\ProductCategoryController;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\BackupController;
+use App\Http\Controllers\ImportController;
+use App\Http\Controllers\EnqueryController;
+use App\Http\Controllers\EnquiryController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\FollowUpController;
+use App\Http\Controllers\ShowRoomController;
+use App\Http\Controllers\UpazillaController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DueEnquiryController;
+use App\Http\Controllers\EnquiryTypeController;
+use App\Http\Controllers\ProductTypeController;
+use App\Http\Controllers\CustomerTypeController;
+use App\Http\Controllers\PurchaseModeController;
+use App\Http\Controllers\EnquirySourceController;
+use App\Http\Controllers\EnquiryStatusController;
+use App\Http\Controllers\NotificationsController;
+use App\Http\Controllers\FollowUpMethodController;
+use App\Http\Controllers\ProductCategoryController;
+use App\Http\Controllers\CustomerProfessionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -77,7 +78,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('attend-follow-up/{id}', [FollowUpController::class,'show']);
     Route::post('child-status',         [FollowUpController::class,'ChildStatus']);
     Route::post('update-follow/{id}',   [FollowUpController::class,'update']);
-    // User  
+    // User
     Route::get('user/profile/{id}',         [UserController::class, 'Profile'])->name('user.profile');
     Route::post('user/profile-update/{id}', [UserController::class, 'UpdateProfile'])->name('user.profile.update');
     Route::get('change-password/{id}',      [UserController::class, 'ChangePassword'])->name('password.change');
@@ -86,7 +87,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('user-pass-change/{id}',      [UserController::class, 'UserPasswordChange'])->name('password.change');
 
     Route::post('update-password-user/{id}',  [UserController::class, 'UpdatePasswordUser'])->name('password.update.user');
-    // Enquiry status parent assign 
+    // Enquiry status parent assign
     Route::get('enquiry-status-setting',        [EnquiryStatusController::class, 'statusSetting'])->name('enquiry-status-settings');
     Route::post('enquiry-status-parent-assign', [EnquiryStatusController::class, 'parentAssign'])->name('parent-assign');
     Route::get('status-type/{type_id}',         [EnqueryController::class, 'statusType'])->name('status-type');
@@ -101,7 +102,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('menu-permission-assign',  [RoleController::class, 'menuPermissionAssign'])->name('menu-permission-assign');
 
     Route::get('menu-entry',  [RoleController::class, 'menu_entry']);
-    // All resources route here 
+    // All resources route here
 
     Route::get('user-export',[UserController::class,'export'] )->name('user.export');
     Route::get('user-export-active',[UserController::class,'Activeexport'] )->name('active.user.export');
@@ -124,7 +125,7 @@ Route::group(['middleware' => 'auth'], function () {
             'show-rooms'          => ShowRoomController::class,
             'enquiry'             => EnqueryController::class,
             'roles'               => RoleController::class,
-            'customer'            => CustomerController::class,       
+            'customer'            => CustomerController::class,
             'user'                 => UserController::class,
             'customer-profession' => CustomerProfessionController::class,
             'upazila'             => UpazillaController::class,
@@ -137,9 +138,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('active-user-manager',[UserController::class,'ActiveUserManager'] )->name('user.active.manager');
     Route::get('active-user-executive',[UserController::class,'ActiveUserExecutive'] )->name('user.active.executive');
     Route::get('active-user-admin',[UserController::class,'ActiveUserAdmin'] )->name('user.active.admin');
-    // Enquiry settings 
+    // Enquiry settings
     Route::get('/enquiry-status-settings',[EnquiryStatusController::class,'statusSetting'])->name('enquiry-status-setting');
-    // Ajax enquiry 
+    // Ajax enquiry
     Route::get('enquiries',             [EnqueryController::class, 'enquiries'])->name('enquiries');
     Route::get('passed-over',           [EnqueryController::class, 'passedOver'])->name('passed-over');
     Route::get('pending-enquiry',       [EnqueryController::class, 'Pending'])->name('pending-enquiry');
@@ -156,8 +157,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('query-product',      [ProductController::class, 'QueryProduct']);
     Route::post('/check-status',[FollowUpController::class,'StatusCheck']);
     Route::post('/check-status-all', [FollowUpController::class, 'CheckStatusAll']);
-    
-    // Status 
+
+    Route::get('import/enquiry', function () {
+        return view('pages.enquiry.import');
+    });
+    Route::post('/import-enquiry', [ImportController::class, 'import']);
+
+    // Status
     Route::get('enquiry-type-status/{id}',        [EnquiryTypeController::class, 'status'])->name('enquiry-type-status');
     Route::get('enquiry-source-status/{id}',      [EnquirySourceController::class, 'status'])->name('enquiry-source-status');
     Route::get('purchase-mode-status/{id}',       [PurchaseModeController::class, 'status'])->name('purchase-mode-status');

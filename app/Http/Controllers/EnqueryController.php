@@ -78,7 +78,7 @@ class EnqueryController extends Controller
         date_default_timezone_set('Asia/Dhaka');
         $enquiry_status = @Setting::first()->enquiry_status;
         $query = Enquery::with(['enquiry_type', 'product', 'enquiry_source_child', 'customer', 'users', 'showroom', 'customer', 'customer.customer_types', 'enquirystatus', 'assign_by']);
-        // Role Check 
+        // Role Check
         if (Auth::user()->role_id == 2) {
             $query->where('assign', Auth::user()->id);
         } else if (Auth::user()->role_id == 3) {
@@ -86,7 +86,7 @@ class EnqueryController extends Controller
         }else if((Auth::user()->role_id == 6) || (Auth::user()->role_id == 7) || (Auth::user()->role_id == 8)){
             $query->where('created_by', Auth::user()->id);
         }
-        // Filter 
+        // Filter
         if ($request->from_date && $request->to_date) {
             // Date query
             if ($f_date_format = $request->from == 'today') {
@@ -99,18 +99,18 @@ class EnqueryController extends Controller
             }
             $db_column  = $request->date_type == 1 ? 'next_follow_up_date' : 'created_at';
             $to_date    = date('Y-m-d 23:59:59', strtotime($request->to_date));
-            // Date     
+            // Date
             $query->whereBetween($db_column,  [$from_date, $to_date]);
         } else {
             $from_date = date('Y-m-1 00:00:00');
             $to_date   = date('Y-m-t 23:59:59');
-            // Date 
+            // Date
             $query->whereBetween('next_follow_up_date',  [$from_date, $to_date]);
         }
         if ((Auth::user()->role_id == 1) || (Auth::user()->role_id == 6)|| (Auth::user()->role_id == 7) || (Auth::user()->role_id == 8) || (Auth::user()->role_id == 9)) {
             if ($request->zone_id) {
                 $zone_id = $request->zone_id;
-                // Zone 
+                // Zone
                 $query->whereHas('showroom', function ($q) use ($zone_id) {
                     $q->where('zone_id', $zone_id);
                 });
@@ -125,15 +125,15 @@ class EnqueryController extends Controller
         if ($request->buying_aspect) {
             $query->where('buying_aspect', $request->buying_aspect);
         }
-        
+
         // dd($query->get());
-        
+
         // dd($request->category_id);
-        
+
         if($request->category_id){
-            
+
             $category_id = $request->category_id;
-            
+
             $query->whereHas('product', function ($q) use ($category_id) {
                     $q->where('category_id', $category_id);
                 });
@@ -159,6 +159,13 @@ class EnqueryController extends Controller
             $query->where('enquiry_status', $request->status_child);
         }
 
+        if($request->customer_search){
+
+            $query->where('name', 'like', '%' . $request->customer_search . '%')
+                  ->orWhere('number', 'like', '%' . $request->customer_search . '%');
+
+        }
+
 
 
         // if($request->from == 'today'){
@@ -167,9 +174,9 @@ class EnqueryController extends Controller
         // }
 
         // Status type
-        // if($request->status_type && $enquiry_status){ 
+        // if($request->status_type && $enquiry_status){
         //     if($request->status_type == 1){ // Open == 1
-        //         $query->where('enquiry_status', $enquiry_status['open']);    
+        //         $query->where('enquiry_status', $enquiry_status['open']);
         //     }
         //     else if($request->status_type == 2){  // Close == 2
         //         $query->where('enquiry_status', $enquiry_status['close']);
@@ -177,7 +184,7 @@ class EnqueryController extends Controller
         //     else{ // Sale == 3
         //         $query->where('enquiry_status', $enquiry_status['sale']);
         //     }
-        // } 
+        // }
 
         $enquiries = $query->orderBy('id', 'DESC')->paginate(30);
 
@@ -191,7 +198,7 @@ class EnqueryController extends Controller
     {
 
         $query = Enquery::with(['enquiry_type', 'purchase_modes', 'product', 'enquiry_source_child', 'customer', 'users', 'showroom', 'customer.customer_types', 'enquirystatus', 'assign_by']);
-        // Role Check 
+        // Role Check
         if (Auth::user()->role_id == 2) {
             $query->where('assign', Auth::user()->id);
         } else if (Auth::user()->role_id == 3) {
@@ -199,23 +206,23 @@ class EnqueryController extends Controller
         }else if ((Auth::user()->role_id == 6) || (Auth::user()->role_id == 7) || (Auth::user()->role_id == 8)) {
             $query->where('created_by', Auth::user()->id);
         }
-        // Filter 
+        // Filter
         if ($request->from_date && $request->to_date) {
             $column    = $request->date_type == 1 ? 'next_follow_up_date' : 'created_at';
             $from_date = date('Y-m-d 00:00:00', strtotime($request->from_date));
             $to_date   = date('Y-m-d 23:59:59', strtotime($request->to_date));
-            // Date 
+            // Date
             $query->whereBetween($column,  [$from_date, $to_date]);
         } else {
             $from_date = date('Y-m-1 00:00:00');
             $to_date   = date('Y-m-t 23:59:59');
-            // Date 
+            // Date
             $query->whereBetween('next_follow_up_date',  [$from_date, $to_date]);
         }
         if ((Auth::user()->role_id == 1)|| (Auth::user()->role_id == 6) || (Auth::user()->role_id == 7) || (Auth::user()->role_id == 8)) {
             if ($request->zone_id) {
                 $zone_id = $request->zone_id;
-                // Zone 
+                // Zone
                 $query->whereHas('showroom', function ($q) use ($zone_id) {
                     $q->where('zone_id', $zone_id);
                 });
@@ -241,9 +248,9 @@ class EnqueryController extends Controller
 
         $enquiry_status = @Setting::first()->enquiry_status;
         // Status type
-        // if($request->status_type && $enquiry_status){ 
+        // if($request->status_type && $enquiry_status){
         //     if($request->status_type == 1){ // Open == 1
-        //         $query->where('enquiry_status', $enquiry_status['open']);    
+        //         $query->where('enquiry_status', $enquiry_status['open']);
         //     }
         //     else if($request->status_type == 2){  // Close == 2
         //         $query->where('enquiry_status', $enquiry_status['close']);
@@ -251,7 +258,7 @@ class EnqueryController extends Controller
         //     else{ // Sale == 3
         //         $query->where('enquiry_status', $enquiry_status['sale']);
         //     }
-        // } 
+        // }
 
         $enquiries = $query->orderBy('id', 'DESC')->get();
         //dd($enquiries);
@@ -281,7 +288,7 @@ class EnqueryController extends Controller
         $purchasemods = PurchaseMode::orderBy('id', 'DESC')->where('status', 1)->get();
         $methods = FollowUpMethod::orderBy('id', 'DESC')->where('status', 1)->get();
         $customers_professions = CustomerProfession::orderBy('id', 'DESC')->where('status', 1)->get();
-      
+
         return view('pages.enquiry.enquiry', compact('title','description', 'customer_types', 'sources_awerness', 'purchasemods', 'enquery_types', 'methods', 'showrooms', 'executives', 'customers_professions', 'districts'));
     }
     /**
@@ -312,7 +319,7 @@ class EnqueryController extends Controller
             $follow_up_date = date('Y-m-d H:i:s', strtotime($request->next_follow_up_date));
             $sales_date     = date('Y-m-d', strtotime($request->sales_date));
             $enquiryData    = Arr::except($requestData, ['alt_number', 'email', 'profession', 'gender', 'type_id', 'product_name', 'category_name', 'group_name']);
-            // Customer check 
+            // Customer check
             $check  = Customer::where('number', $request->number)->get();
             if (count($check) <= 0) {
                 $for_customer = $request->only(['age', 'district_id', 'upazila_id', 'name', 'showroom_id', 'number', 'alt_number', 'email', 'profession', 'gender', 'type_id']);
@@ -330,7 +337,7 @@ class EnqueryController extends Controller
             $productData = $request->only(['group_name', 'category_name', 'product_name', 'group_id', 'category_id', 'product_id']);
             $productData['enquiry_id'] = $enquiry_id;
             $product_id = $this->enquiry->product($productData);
-            // Followup entry 
+            // Followup entry
             $followupData                  = $request->only(['next_follow_up_method', 'name']);
             $followupData['next_follow_up_date'] = $follow_up_date;
             $followupData['enquiry_id']    = $enquiry_id;
@@ -360,7 +367,7 @@ class EnqueryController extends Controller
             ->where('id', $id)->first();
         //dd($enquiries);
         $html = view('ajaxview.history', compact('title', 'description', 'enquiries'))->render();
-        // Response 
+        // Response
         return response()->json(['html' => $html, 'title' => $title, 'description' => $description]);
     }
 
@@ -395,24 +402,24 @@ class EnqueryController extends Controller
     {
         //
     }
-    
+
 
     public function passedOverEnquiries(Request $request)
     {
         date_default_timezone_set('Asia/Dhaka');
         $enquiry_status = @Setting::first()->enquiry_status;
         $query = Enquery::with(['enquiry_type', 'product', 'enquiry_source_child', 'customer', 'users', 'showroom', 'customer', 'customer.customer_types', 'enquirystatus'])->where('next_follow_up_date', '<', now())->where('enquiry_status', $enquiry_status['open']);
-        // Role Check 
+        // Role Check
         if (Auth::user()->role_id == 2) {
             $query->where('assign', Auth::user()->id);
         } else if (Auth::user()->role_id == 3) {
             $query->where('showroom_id', Auth::user()->showroom_id);
 
         } else if ((Auth::user()->role_id == 6) || (Auth::user()->role_id == 7) || (Auth::user()->role_id == 8)) {
-            
+
             $query->where('created_by', Auth::user()->id);
         }
-        // Filter 
+        // Filter
         $enquiries = $query->orderBy('id', 'DESC')->paginate(30);
         $total = $query->count();
         return view('ajaxview.enquiries', compact('enquiries', 'enquiry_status', 'total'));
@@ -436,7 +443,7 @@ class EnqueryController extends Controller
         date_default_timezone_set('Asia/Dhaka');
         $enquiry_status = @Setting::first()->enquiry_status;
         $query = Enquery::with(['enquiry_type', 'product', 'enquiry_source_child', 'customer', 'users', 'showroom', 'customer', 'customer.customer_types', 'enquirystatus'])->whereIn('enquiry_status', $enquiry_status['pending']);
-        // Role Check 
+        // Role Check
         if (Auth::user()->role_id == 2) {
             $query->where('assign', Auth::user()->id);
         } else if (Auth::user()->role_id == 3) {
@@ -445,10 +452,10 @@ class EnqueryController extends Controller
 
             $query->where('created_by', Auth::user()->id);
         }
-        // Filter 
+        // Filter
         $total = $query->count();
         $enquiries = $query->orderBy('id', 'DESC')->paginate(30);
-      
+
         return view('ajaxview.pending-enquiry', compact('enquiries', 'enquiry_status', 'total'));
 
     }
@@ -458,7 +465,7 @@ class EnqueryController extends Controller
         $enquiry_status = @Setting::first()->enquiry_status;
 
         $query = Enquery::with(['enquiry_type', 'product', 'enquiry_source_child', 'customer', 'users', 'showroom', 'customer', 'customer.customer_types', 'enquirystatus'])->where('next_follow_up_date', '<', now())->where('enquiry_status', $enquiry_status['open']);
-        // Role Check 
+        // Role Check
         if (Auth::user()->role_id == 2) {
             $query->where('assign', Auth::user()->id);
         } else if (Auth::user()->role_id == 3) {
@@ -467,7 +474,7 @@ class EnqueryController extends Controller
         } else if ((Auth::user()->role_id == 6) || (Auth::user()->role_id == 7) || (Auth::user()->role_id == 8)) {
             $query->where('created_by', Auth::user()->id);
         }
-        // Filter 
+        // Filter
 
         $enquiries = $query->orderBy('id', 'DESC')->get();
 
@@ -481,7 +488,7 @@ class EnqueryController extends Controller
         date_default_timezone_set('Asia/Dhaka');
         $enquiry_status = @Setting::first()->enquiry_status;
         $query = Enquery::with(['enquiry_type', 'product', 'enquiry_source_child', 'customer', 'users', 'showroom', 'customer', 'customer.customer_types', 'enquirystatus'])->whereIn('enquiry_status', $enquiry_status['pending']);
-        // Role Check 
+        // Role Check
         if (Auth::user()->role_id == 2) {
             $query->where('assign', Auth::user()->id);
         } else if (Auth::user()->role_id == 3) {
@@ -490,7 +497,7 @@ class EnqueryController extends Controller
 
             $query->where('created_by', Auth::user()->id);
         }
-        // Filter 
+        // Filter
 
         $enquiries = $query->orderBy('id', 'DESC')->get();
 
